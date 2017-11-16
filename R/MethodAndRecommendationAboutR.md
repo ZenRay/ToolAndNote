@@ -10,6 +10,7 @@
 	* [2.2 NA值的比较](NA值比较)
 	* [2.3 对图形添加辅助信息](#添加辅助信息)
 	* [2.4 相关性函数使用注意](#相关性函数的盲点)
+    * [2.5 factor转换](#因子转换)
 
 * [3. 参考](#参考)
     * [了解文件结构](#1.对文件结构进行了解)
@@ -29,22 +30,22 @@
 ```{r}
 # A sample vector
 v <- c(1,4,4,3,2,2,3)
-	
+
 subset(v, v<3)
 #> [1] 1 2 2
 v[v<3]
 #> [1] 1 2 2
-	
-	
+
+
 # Another vector
 t <- c("small", "small", "large", "medium")
-	
+
 # Remove "small" entries
 subset(t, t!="small")
 #> [1] "large"  "medium"
 t[t!="small"]
 #> [1] "large"  "medium"
-	
+
 # A sample data frame
 data <- read.table(header=T, text='
  subject sex size
@@ -53,8 +54,8 @@ data <- read.table(header=T, text='
        3   F    9
        4   M   11
  ')
-	
-	
+
+
 subset(data, subject < 3)
 #>   subject sex size
 #> 1       1   M    7
@@ -63,8 +64,8 @@ data[data$subject < 3, ]
 #>   subject sex size
 #> 1       1   M    7
 #> 2       2   F    6
-	
-	
+
+
 # Subset of particular rows and columns
 subset(data, subject < 3, select = -subject)
 #>   sex size
@@ -82,7 +83,7 @@ data[data$subject < 3, c("sex","size")]
 #>   sex size
 #> 1   M    7
 #> 2   F    6
-	
+
 # Logical AND of two conditions
 subset(data, subject < 3  &  sex=="M")
 #>   subject sex size
@@ -90,8 +91,8 @@ subset(data, subject < 3  &  sex=="M")
 data[data$subject < 3  &  data$sex=="M", ]
 #>   subject sex size
 #> 1       1   M    7
-	
-	
+
+
 # Logical OR of two conditions
 subset(data, subject < 3  |  sex=="M")
 #>   subject sex size
@@ -103,8 +104,8 @@ data[data$subject < 3  |  data$sex=="M", ]
 #> 1       1   M    7
 #> 2       2   F    6
 #> 4       4   M   11
-	
-	
+
+
 # Condition based on transformed data
 subset(data, log2(size) > 3 )
 #>   subject sex size
@@ -114,8 +115,8 @@ data[log2(data$size) > 3, ]
 #>   subject sex size
 #> 3       3   F    9
 #> 4       4   M   11
-	
-	
+
+
 # Subset if elements are in another vector
 subset(data, subject %in% c(1,3))
 #>   subject sex size
@@ -131,7 +132,7 @@ data[data$subject %in% c(1,3), ]
 
 ```{r}
 v[v<3] <- 9
-	
+
 subset(v, v<3) <- 9
 #> Error in subset(v, v < 3) <- 9: could not find function "subset<-"
 ```
@@ -155,6 +156,33 @@ abline(h=c(2,4,6,8,10,12,14),col=”#00000088″,lwd=2)
 abline(h=0)
 ```
 
+### 因子转换
+因子转换有三种常用方式，factor，levels以及ordered，其中factor是三者中主要方式。factor方法可以调用相关参数来完成ordered以及levels的相应功能。注意factor中order参数需要的是逻辑值，以判断是否需设置为顺序型数据，levels参数可以覆盖原有的level。**另外需要注意，如果在设置了order为TRUE之后，没有人为设定level，那么其level将按照字母顺序排序**
+
+```
+factor(c("Poor", "Improved", "Excellent, "Poor"), order=TRUE, levels=c("Poor", "Imporved", "Excellent"))
+```
+
+对于数值型转换为因子性，也可以通过factor的方法来设置，但是需要通过设置levels和labels参数来定义相关值。
+
+```
+factor(c(1, 2, 3, 1, 2, 2, 1, 2, 4), levels=c(1, 2), labels=c("Male", "Female"))
+
+#result
+[1] Male   Female <NA>   Male   Female Female Male   Female <NA>
+Levels: Male Female
+```
+
+以上数据中只有1和2被设置为了对应的因子型，其他对应的值为NA。当然也可以设置为order型，方法如下；
+
+```
+factor(c(1, 2, 3, 1, 2, 2, 1, 2, 4), levels=c(1, 2), labels=c("Male", "Female"), order=TRUE)
+
+#result
+[1] Male   Female <NA>   Male   Female Female Male   Female <NA>
+Levels: Male < Female
+```
+
 ## 注意事项⚠️
 需要注意在coding过程中需要知道的一些trap，或者说和其他相关语言具有差异需要注意的。
 
@@ -175,7 +203,7 @@ v[-1:-3]
 #> [1] 3 2 2 3
 ```
 ### 众数方法
-需要注意⚠️mode方法不是调用众数的方法，其返回的值是**数据类型**；如果要使用统计学上众数的方法，需要调用mfv()方法——(most frequent value) 
+需要注意⚠️mode方法不是调用众数的方法，其返回的值是**数据类型**；如果要使用统计学上众数的方法，需要调用mfv()方法——(most frequent value)
 
 ### NA值的比较
 R中有几类比较特殊的值，NULL、NA、NaN、Int、+Int、-Int。NULL表示的是没有值，而后面两者则是表示的是值存在错误，Int表示的无穷大的意思。
