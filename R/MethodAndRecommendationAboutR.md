@@ -4,13 +4,16 @@
 * [1. 建议](#建议)
 	* [1.1 子集选取与赋值](#子集选取与赋值)
 	* [1.2 旋转坐标轴值](#旋转坐标轴值)
+	*   [1.3 绘图中的中文使用](#绘图的中文支持)
+	*   [1.4 多图一个pic](#单画面输出多图)
 
 * [2. 注意事项](#注意事项)
 	* [2.1 子集的负数索引值](#赋索引值)
 	* [2.2 NA值的比较](NA值比较)
 	* [2.3 对图形添加辅助信息](#添加辅助信息)
 	* [2.4 相关性函数使用注意](#相关性函数的盲点)
-    * [2.5 factor转换](#因子转换)
+   	* [2.5 factor转换](#因子转换)
+   	*   [2.6 绘图三种等级解释](#三种绘图等级)
 
 * [3. 参考](#参考)
     * [了解文件结构](#1.对文件结构进行了解)
@@ -183,6 +186,23 @@ factor(c(1, 2, 3, 1, 2, 2, 1, 2, 4), levels=c(1, 2), labels=c("Male", "Female"),
 Levels: Male < Female
 ```
 
+### 绘图中的中文使用
+R中绘图时，可能会遇见中文支持的问题——中文在图中显示为[]。可以通过更改图中字体家族参数来达到显示中文的目的——可以通过设置par的family参数。其他设置方式——可以直接在图片中family参数和启用cairo模式，如下
+
+```
+png("foo.png", type="cairo",  , family="SimSun")	#启用cairo模式
+plot(1, type="n")
+text(1, 1, "这是cairo模式")
+```
+另外可以支持黑体(SimHei)、楷体(KaiTi_GB2312)、幼圆(YouYuan)、隶属(LiSu)，或则会更一般的图形设备(非cairo模式下)——需要设置family="GB1"。
+
+### 单画面输出多图
+单画面输出多图，有基础的方式，也可以使用第三方的package。基础方式时利用par函数、layout函数或者split.screen()函数，第三方的package是使用gridExtra。基础方式如下：
+
+1. 修改绘图参数，par(mfrow=c(2,2))或者par(mfcol=c(2,2))
+2.  使用更为强大的layout函数，可以设置图形绘制顺序和图形大小
+3. split.screen()函数
+
 ## 注意事项⚠️
 需要注意在coding过程中需要知道的一些trap，或者说和其他相关语言具有差异需要注意的。
 
@@ -248,6 +268,9 @@ ggplot(aes(age, friend_count), data=pf) +
 ```
 ### 相关性函数盲点
 在使用相关性函数cor以及cor.test的时候，它们是对整个数据集进行相关性分析。可能会因为因为数据是周期性的相关，而形成相关性变弱。推荐使用energy这个package中的[dcor.ttest方法](https://www.rdocumentation.org/packages/energy/versions/1.7-0/topics/dcor.ttest)来探索相关性，
+
+### 三种绘图等级
+R中绘图包括三种等级，即是高级(High_level)、低级(Low_level)以及交互式(Interactive)三种命令方式。高级方式指的是在图形设备傻姑娘绘制新图；低级方式指的是利用绘图命令在已经存在的图形傻姑娘添加更多的绘图信息，如点、线、多边形等；交互式方式指利用鼠标等定点方式来添加或者提取绘图信息。
 
 ## 参考
 1. [Data wrangling package-dplyr & tidyr](https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf)
